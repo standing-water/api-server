@@ -25,13 +25,17 @@ internal suspend fun DefaultWebSocketServerSession.handleWebSocket(realtimeServi
         when (message["message"].asText()) {
             "ping" -> outgoing.send(realtimeService.ping())
             "subscribe" -> {
+                if (call.attributes.getOrNull(ATTRIBUTE_PRESENTATION_ID) != null) {
+                    outgoing.send(Event.error("Already subscribed"))
+                    return
+                }
+
                 val param = message["parameter"]
                 val presentationId = param?.get("presentation_id")?.asInt()
                 val token = param?.get("token")?.asText()
 
                 if (presentationId == null || token.isNullOrBlank()) {
                     outgoing.send(Event.error("Invalid parameter"))
-
                     return
                 }
 
