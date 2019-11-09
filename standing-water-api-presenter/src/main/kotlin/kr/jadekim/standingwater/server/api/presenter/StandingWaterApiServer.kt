@@ -84,7 +84,7 @@ class StandingWaterApiServer(
 
             route("/{presentationId}") {
                 authenticate {
-                    chat(chatService)
+                    route("/chat") { chat(chatService) }
 
                     route("/question") {
                         question(questionService)

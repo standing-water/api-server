@@ -28,6 +28,8 @@ data class Event(
             "message" to message
         ))
 
+        fun activeUser(count: Int) = Event(EventType.ACTIVE_USER, mapOf("count" to count))
+
         fun createQuestion(questionId: Int, nickname: String, page: Int, content: String) = Event(
             EventType.CRUD, mapOf(
                 "type" to "create",

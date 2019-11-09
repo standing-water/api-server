@@ -7,6 +7,7 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.launch
 import kr.jadekim.exception.UnauthorizedException
 import kr.jadekim.standingwater.domain.Event
+import kr.jadekim.standingwater.domain.alias.PublishChannel
 import kr.jadekim.standingwater.domain.alias.SubscribeChannel
 import kr.jadekim.standingwater.server.api.base.util.Jackson
 import org.slf4j.LoggerFactory
@@ -16,6 +17,7 @@ private typealias Subscriber = Channel<Pair<String, Event>>
 
 class RealtimeService(
     private val userService: UserService,
+    private val publishChannel: PublishChannel,
     private val subscribeChannel: SubscribeChannel
 ) : CoroutineScope {
 
@@ -61,6 +63,7 @@ class RealtimeService(
 
         channelMap[token] = channel
         list.add(channel)
+        publishChannel.send(presentationId to Event.activeUser(list.size))
 
         return channel
     }
@@ -73,7 +76,10 @@ class RealtimeService(
         }
 
         val channel = channelMap.remove(token) ?: return false
-        subscribers[presentationId]?.remove(channel)
+        val list = subscribers[presentationId]
+
+        list?.remove(channel)
+        publishChannel.send(presentationId to Event.activeUser(list?.size ?: 0))
 
         channel.close()
 

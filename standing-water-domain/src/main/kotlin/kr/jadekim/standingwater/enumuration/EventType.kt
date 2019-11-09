@@ -7,6 +7,7 @@ enum class EventType {
     RESPONSE,
     ERROR,
     CHANGE_PAGE,
+    ACTIVE_USER,
     CHAT_MESSAGE,
     CRUD;
 
