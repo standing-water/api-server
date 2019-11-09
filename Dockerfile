@@ -1,4 +1,4 @@
-FROM openjdk:11-jdk-alpine
+FROM hirokimatsumoto/alpine-openjdk-11
 
 VOLUME /tmp
 

@@ -2,7 +2,6 @@
 <configuration>
 
     <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
-    <contextListener class="kr.jadekim.standingwater.server.api.logback.LogbackStartupListener"/>
 
     <appender name="TextStdOut" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
@@ -10,15 +9,7 @@
         </layout>
     </appender>
 
-    <root level="${etc.level}">
+    <root level="TRACE">
         <appender-ref ref="TextStdOut"/>
     </root>
-
-    <logger name="Exposed" level="${db.level}"/>
-    <logger name="com.zaxxer.hikari" level="${dbcp.level}"/>
-    <logger name="io.lettuce" level="${redis.level}"/>
-<!--    <logger name="org.xnio" level="${server.level}"/>-->
-    <logger name="org.koin" level="${koin.level}"/>
-    <logger name="RequestLogger" level="INFO"/>
-    <logger name="kr.jadekim" level="${application.level}"/>
 </configuration>

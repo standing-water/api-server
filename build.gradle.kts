@@ -12,7 +12,7 @@ group = "kr.jadekim.standingwater"
 version = "v1"
 
 application {
-    mainClassName = "kr.jadekim.stadingwater.server.api.MainKt"
+    mainClassName = "kr.jadekim.standingwater.server.api.MainKt"
     applicationDefaultJvmArgs = listOf(
         "-server",
         "-Djava.security.egd=file:/dev/./urandom"

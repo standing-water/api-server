@@ -9,8 +9,9 @@ dependencies {
 
     implementation(project(":standing-water-api-presenter"))
     implementation(project(":standing-water-domain"))
-    implementation(project(":standing-water-api-db"))
-    implementation(project(":standing-water-api-redis"))
+    implementation(project(":standing-water-db"))
+    implementation(project(":standing-water-redis"))
+    implementation(project(":standing-water-s3"))
 
     implementation("org.koin:koin-core:$koinVersion")
     implementation("org.koin:koin-core-ext:$koinVersion")

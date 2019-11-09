@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.ktor.application.*
 import io.ktor.features.UnsupportedMediaTypeException
 import io.ktor.http.HttpMethod
-import io.ktor.request.host
-import io.ktor.request.httpMethod
-import io.ktor.request.path
-import io.ktor.request.userAgent
+import io.ktor.request.*
 import io.ktor.util.AttributeKey
 import io.ktor.util.pipeline.PipelineContext
 import io.ktor.util.toMap
@@ -72,7 +69,9 @@ class Slf4jCallLogging private constructor(
 
                 var parameters = pathParam.toMap() + queryParam.toMap()
 
-                if (method == HttpMethod.Post || method == HttpMethod.Put || method == HttpMethod.Patch) {
+                if ((method == HttpMethod.Post || method == HttpMethod.Put || method == HttpMethod.Patch)
+                    && !context.request.isMultipart()
+                ) {
                     try {
                         withContext(MDCContext()) {
                             bodyParam()?.toMap()?.let {

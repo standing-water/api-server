@@ -1,27 +1,33 @@
 package kr.jadekim.standingwater.server.api
 
+import kotlinx.coroutines.channels.Channel
 import kr.jadekim.enumuration.ServiceEnvironment
 import kr.jadekim.logger.KoinLogger
-import kr.jadekim.standingwater.server.api.presenter.NFAuthApiServer
+import kr.jadekim.standingwater.domain.Event
 import kr.jadekim.standingwater.server.api.module.DBModule
 import kr.jadekim.standingwater.server.api.module.RedisModule
 import kr.jadekim.standingwater.server.api.module.RepositoryModule
 import kr.jadekim.standingwater.server.api.module.ServiceModule
+import kr.jadekim.standingwater.server.api.presenter.StandingWaterApiServer
+import kr.jadekim.standingwater.service.RealtimeService
 import kr.jadekim.util.loadProperties
 import kr.jadekim.util.shutdownHook
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.koin.dsl.onClose
 import org.koin.experimental.builder.single
+import org.slf4j.LoggerFactory
+
+private val logger = LoggerFactory.getLogger("STANDING-WATER-API")
 
 fun main(vararg args: String) {
-    println("Startup NFAUTH-API(${System.currentTimeMillis()})")
+    logger.info("Startup STANDING-WATER-API")
 
     val serviceEnvValue = System.getenv("SERVICE_ENV")?.toLowerCase() ?: "local"
     val serviceEnv = ServiceEnvironment.of(serviceEnvValue)
         ?: throw IllegalArgumentException("Invalid SERVICE_ENV value")
 
-    val envProperties = NFAuthApiServer::class.java.classLoader
+    val envProperties = StandingWaterApiServer::class.java.classLoader
         .getResourceAsStream("$serviceEnvValue.properties")
         ?: throw IllegalArgumentException("Can't load $serviceEnvValue.properties")
 
@@ -33,7 +39,7 @@ fun main(vararg args: String) {
         modules(module {
             single { properties }
             single { serviceEnv }
-            single<NFAuthApiServer>().onClose { it?.stop() }
+            single<StandingWaterApiServer>().onClose { it?.stop() }
         })
         modules(
             listOf(
@@ -45,7 +51,11 @@ fun main(vararg args: String) {
         )
     }.koin
 
-    shutdownHook { koin.close() }
+    shutdownHook {
+        koin.close()
+        koin.get<Channel<Pair<Int, Event>>>().close()
+    }
 
-    koin.get<NFAuthApiServer>().start()
+    koin.get<RealtimeService>().startup()
+    koin.get<StandingWaterApiServer>().start()
 }

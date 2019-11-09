@@ -12,6 +12,7 @@ include(
     "standing-water-api-application",
     "standing-water-api-presenter",
     "standing-water-domain",
-    "standing-water-api-db",
-    "standing-water-api-redis"
+    "standing-water-db",
+    "standing-water-redis",
+    "standing-water-s3"
 )

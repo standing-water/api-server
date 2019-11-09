@@ -5,6 +5,7 @@ import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.features.ContentConverter
 import io.ktor.http.ContentType
+import io.ktor.http.Parameters
 import io.ktor.http.content.WriterContent
 import io.ktor.http.withCharset
 import io.ktor.request.ApplicationReceiveRequest
@@ -41,13 +42,29 @@ class JacksonConverter(private val objectmapper: ObjectMapper = ObjectMapper()) 
 
     override suspend fun convertForReceive(context: PipelineContext<ApplicationReceiveRequest, ApplicationCall>): Any? {
         val request = context.subject
-        val type = request.type
+        var type = request.type
+        var isParameter = false
+        if (type is Parameters) {
+            isParameter = true
+            type = HashMap::class
+        }
+
         val value = request.value as? ByteReadChannel ?: return null
 
-        return withContext(Dispatchers.IO) {
+        val result = withContext(Dispatchers.IO) {
             value.toInputStream()
                 .reader(context.call.request.contentCharset() ?: Charsets.UTF_8)
                 .use { objectmapper.readValue(it, type.javaObjectType) }
         }
+
+        if (isParameter) {
+            return Parameters.build {
+                (result as? HashMap<*, *>)?.forEach {
+                    this.append(it.key.toString(), it.value.toString())
+                }
+            }
+        }
+
+        return result
     }
 }

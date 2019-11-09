@@ -13,7 +13,7 @@ fi
 set -e
 export API_SERVER_OPTS="\
   -Xms${JVM_XMS}m \
-  -Xmx${JVM_XMX}m
+  -Xmx${JVM_XMX}m"
 
 /app/bin/api-server
 
