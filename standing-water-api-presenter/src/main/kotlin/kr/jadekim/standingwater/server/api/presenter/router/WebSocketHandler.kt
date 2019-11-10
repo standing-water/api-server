@@ -21,6 +21,26 @@ private val ATTRIBUTE_TOKEN = AttributeKey<String>("ws-realtime_token")
 private val errorLogger = LoggerFactory.getLogger("ErrorLogger")
 
 internal suspend fun DefaultWebSocketServerSession.handleWebSocket(realtimeService: RealtimeService) {
+    suspend fun unsubscribe() {
+        val presentationId = call.attributes.getOrNull(ATTRIBUTE_PRESENTATION_ID)
+        val token = call.attributes.getOrNull(ATTRIBUTE_TOKEN)
+
+        if (presentationId != null && token != null) {
+            try {
+                realtimeService.unsubscribe(presentationId, token)
+            } catch (e: Exception) {
+                errorLogger.error(e.message, e)
+                outgoing.send(Event.error("Occur Error"))
+                return
+            }
+        } else {
+            outgoing.send(Event.error("Not subscribed"))
+        }
+
+        call.attributes.remove(ATTRIBUTE_PRESENTATION_ID)
+        call.attributes.remove(ATTRIBUTE_TOKEN)
+    }
+
     suspend fun requestMessage(message: JsonNode) {
         when (message["message"].asText()) {
             "ping" -> outgoing.send(realtimeService.ping())
@@ -58,47 +78,14 @@ internal suspend fun DefaultWebSocketServerSession.handleWebSocket(realtimeServi
 
                 outgoing.send(Event.response(true))
             }
-            "unsubscribe" -> {
-                val presentationId = call.attributes.getOrNull(ATTRIBUTE_PRESENTATION_ID)
-                val token = call.attributes.getOrNull(ATTRIBUTE_TOKEN)
-
-                if (presentationId != null && token != null) {
-                    val result = try {
-                        realtimeService.unsubscribe(presentationId, token)
-                    } catch (e: Exception) {
-                        errorLogger.error(e.message, e)
-                        outgoing.send(Event.error("Occur Error"))
-                        return
-                    }
-
-                    if (result) {
-                        close(CloseReason(CloseReason.Codes.NORMAL, Event.response(true).asJson()))
-                    } else {
-                        outgoing.send(Event.error("Not subscribed"))
-                    }
-                    return
-                }
-
-                outgoing.send(Event.error("Not subscribed"))
-            }
+            "unsubscribe" -> unsubscribe()
         }
     }
 
     for (frame in incoming) {
         when (frame) {
             is Frame.Text -> requestMessage(frame.read())
-            is Frame.Close -> {
-                val presentationId = call.attributes.getOrNull(ATTRIBUTE_PRESENTATION_ID)
-                val token = call.attributes.getOrNull(ATTRIBUTE_TOKEN)
-
-                if (presentationId != null && token != null) {
-                    try {
-                        realtimeService.unsubscribe(presentationId, token)
-                    } catch (e: Exception) {
-                        errorLogger.error(e.message, e)
-                    }
-                }
-            }
+            is Frame.Close -> unsubscribe()
         }
     }
 }
