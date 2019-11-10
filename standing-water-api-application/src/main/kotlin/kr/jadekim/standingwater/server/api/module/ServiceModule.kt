@@ -11,7 +11,16 @@ val ServiceModule = module {
     single<FileService>()
     single { QuestionService(get(), get(), get(), get(named("publish-channel"))) }
     single { ReplyService(get(), get(), get(named("publish-channel"))) }
-    single { PresentationService(get(), get(), get(), get(named("publish-channel")), getString("s3.base_url")!!) }
+    single {
+        PresentationService(
+            get(),
+            get(),
+            get(),
+            get(),
+            get(named("publish-channel")),
+            getString("s3.base_url")!!
+        )
+    }
     single { ChatService(get(named("publish-channel"))) }
     single { RealtimeService(get(), get(named("publish-channel")), get(named("subscribe-channel"))) }
 }

@@ -8,13 +8,11 @@ import kr.jadekim.standingwater.domain.alias.PublishChannel
 import kr.jadekim.standingwater.repository.PresentationCacheRepository
 import kr.jadekim.standingwater.repository.PresentationRepository
 import kr.jadekim.standingwater.repository.UserRepository
-import kr.jadekim.standingwater.service.protocol.CreatePresentationResponse
-import kr.jadekim.standingwater.service.protocol.ListResponse
-import kr.jadekim.standingwater.service.protocol.PresentationResponse
-import kr.jadekim.standingwater.service.protocol.UserResponse
+import kr.jadekim.standingwater.service.protocol.*
 import java.util.*
 
 class PresentationService(
+    private val realtimeService: RealtimeService,
     private val presentationRepository: PresentationRepository,
     private val presentationCacheRepository: PresentationCacheRepository,
     private val userRepository: UserRepository,
@@ -24,12 +22,11 @@ class PresentationService(
 
     suspend fun getAllPresentations() = presentationRepository.getAll()
         .map {
-            PresentationResponse(
+            PresentationListItem(
                 it.id,
                 it.enterId,
                 "$fileServerBaseUrl/file/${it.fileId}",
-                it.name,
-                presentationCacheRepository.getCurrentPage(it.id) ?: 1
+                it.name
             )
         }
         .let { ListResponse(it) }
@@ -55,7 +52,8 @@ class PresentationService(
             presentation.enterId,
             "$fileServerBaseUrl/file/${presentation.fileId}",
             presentation.name,
-            presentationCacheRepository.getCurrentPage(presentation.id) ?: 1
+            presentationCacheRepository.getCurrentPage(presentation.id) ?: 1,
+            realtimeService.getActiveCount(presentation.id)
         )
     }
 

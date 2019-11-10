@@ -45,6 +45,8 @@ class RealtimeService(
 
     fun ping() = Event.pong()
 
+    fun getActiveCount(presentationId: Int) = subscribers[presentationId]?.size ?: 0
+
     suspend fun subscribe(presentationId: Int, token: String): ReceiveChannel<Pair<String, Event>> {
         val user = userService.getInfoByToken(token)
 
