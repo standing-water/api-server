@@ -1,10 +1,8 @@
 package kr.jadekim.standingwater.service.protocol
 
-data class PresentationResponse(
+data class PresentationListItem(
     val id: Int,
     val enterId: String,
     val fileUrl: String,
-    val name: String,
-    val currentPage: Int,
-    val activeUserCount: Int
+    val name: String
 )

@@ -61,6 +61,7 @@ class StandingWaterApiServer(
             header(HttpHeaders.AccessControlRequestHeaders)
             header(HttpHeaders.AccessControlRequestMethod)
             header(HttpHeaders.ContentType)
+            header(HttpHeaders.Authorization)
             allowCredentials = true
             anyHost()
         }

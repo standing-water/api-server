@@ -78,6 +78,7 @@ class ReplyDao(
                 (Replies.question inList questionIdList.map { EntityID(it, Questions) })
                     .and(Replies.isActive eq true)
             }
+            .groupBy(Replies.id)
             .orderBy(orderColumn, if (orderDesc) SortOrder.DESC else SortOrder.ASC)
 
         val likes = ReplyLikes.slice(ReplyLikes.reply)

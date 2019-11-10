@@ -47,6 +47,7 @@ class QuestionDao(
 
                 op
             }
+            .groupBy(Questions.id)
             .orderBy(orderColumn, if (orderDesc) SortOrder.DESC else SortOrder.ASC)
 
         val likes = QuestionLikes.slice(QuestionLikes.question)
