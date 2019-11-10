@@ -27,7 +27,9 @@ class QuestionDao(
             OrderType.TIME -> Questions.createdAt
         }
 
-        val questions = Questions.innerJoin(Users).leftJoin(QuestionLikes)
+        val questions = Questions
+            .join(Users, JoinType.INNER, additionalConstraint = { Questions.creator eq Users.id })
+            .join(QuestionLikes, JoinType.LEFT, additionalConstraint = { Questions.id eq QuestionLikes.question })
             .slice(
                 Questions.id,
                 Questions.page,

@@ -26,7 +26,9 @@ class ReplyDao(
             OrderType.TIME -> Replies.createdAt
         }
 
-        val replies = Replies.innerJoin(Users).leftJoin(ReplyLikes)
+        val replies = Replies
+            .join(Users, JoinType.INNER, additionalConstraint = { Replies.creator eq Users.id })
+            .join(ReplyLikes, JoinType.LEFT, additionalConstraint = { Replies.id eq ReplyLikes.reply })
             .slice(
                 Replies.id,
                 Replies.question,
@@ -64,7 +66,9 @@ class ReplyDao(
             OrderType.TIME -> Replies.createdAt
         }
 
-        val replies = Replies.innerJoin(Users).leftJoin(ReplyLikes)
+        val replies = Replies
+            .join(Users, JoinType.INNER, additionalConstraint = { Replies.creator eq Users.id })
+            .join(ReplyLikes, JoinType.LEFT, additionalConstraint = { Replies.id eq ReplyLikes.reply })
             .slice(
                 Replies.id,
                 Replies.question,
